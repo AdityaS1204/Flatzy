@@ -1,4 +1,4 @@
-import ownerImg from "./generated-Image.png"
+import ownerImg from "./generated-image.png"
 import gridImg1 from "./grid1.png"
 import gridImg2 from "./grid2.png"
 import gridImg3 from "./grid3.png"
