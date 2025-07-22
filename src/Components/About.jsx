@@ -1,9 +1,9 @@
 import { motion } from 'motion/react'
 import { Rocket } from 'lucide-react'
 import MarqueeComponent from './Marquee';
-import { gridImg1, gridImg2, gridImg3 } from '../assets';
+import { gridImg1, gridImg2, gridImg3,gridImg4 } from '../assets';
 const About = () => {
-    const imgSrc = [gridImg1, gridImg2, gridImg3, gridImg1, gridImg2, gridImg3]
+    const imgSrc = [gridImg1, gridImg2, gridImg3, gridImg1, gridImg2, gridImg3,gridImg4]
     const students = [
         'Verified PG Listings with Photos',
         'Admin Dashboard for Property Management',
