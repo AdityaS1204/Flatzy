@@ -4,15 +4,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
 
 export const API_ENDPOINTS = {
   // Auth endpoints
-  LOGIN: `${API_BASE_URL}/api/Auth/login`,
-  VERIFY: `${API_BASE_URL}/api/Auth/verify`,
+  LOGIN: `${API_BASE_URL}/api/auth/login`,
+  VERIFY: `${API_BASE_URL}/api/auth/verify`,
   
   // Listings endpoints
   LISTINGS: `${API_BASE_URL}/api/listings`,
   LISTING_BY_ID: (id) => `${API_BASE_URL}/api/listings/${id}`,
   
   // Health check
-  HEALTH: `${API_BASE_URL}/api/health`
+  HEALTH: `${API_BASE_URL}/api/health`,
+  
+  // Test endpoint
+  TEST: `${API_BASE_URL}/api/test`
 };
 
 export default API_ENDPOINTS; 
