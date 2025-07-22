@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
-import { Admin,Home } from "../Pages";
+import { Admin,Home,Listings } from "../Pages";
 
 
 
@@ -16,6 +16,10 @@ const AppRouter = createBrowserRouter([
             {
                 path:"/fz-admin",
                 element:<Admin/>,
+            },
+            {
+                path:"/listings",
+                element:<Listings/>,
             }
         ]
     }
