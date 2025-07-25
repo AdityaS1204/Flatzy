@@ -1,9 +1,10 @@
 import { motion } from 'motion/react'
 import { Rocket } from 'lucide-react'
 import MarqueeComponent from './Marquee';
-import { gridImg1, gridImg2, gridImg3,gridImg4 } from '../assets';
+import { gridImg1, gridImg2, gridImg3,gridImg4,gridImg5,gridImg6 } from '../assets';
 const About = () => {
-    const imgSrc = [gridImg1, gridImg2, gridImg3, gridImg1, gridImg2, gridImg3,gridImg4]
+    const imgSrc1 = [gridImg1, gridImg4,  gridImg6,gridImg2, gridImg3,gridImg5,gridImg4]
+    const imgSrc2 = [gridImg3, gridImg5, gridImg6,gridImg2, gridImg3,gridImg5]
     const students = [
         'Verified PG Listings with Photos',
         'Admin Dashboard for Property Management',
@@ -49,13 +50,13 @@ const About = () => {
                         </div>
                         <div className='right w-full lg:w-[500px] h-[300px] sm:h-[450px] flex flex-col gap-3 sm:gap-5'>
                             <div>
-                                <MarqueeComponent direction="right" speed={25} imgSrc={imgSrc} />
+                                <MarqueeComponent direction="right" speed={25} imgSrc={imgSrc1} />
                             </div>
                             <div>
-                                <MarqueeComponent direction="left" speed={25} cardSize={'h-20 sm:h-28 w-32 sm:w-44'} imgSrc={imgSrc} />
+                                <MarqueeComponent direction="left" speed={25} cardSize={'h-20 sm:h-28 w-32 sm:w-44'} imgSrc={imgSrc2} />
                             </div>
                             <div>
-                                <MarqueeComponent direction="right" speed={25} imgSrc={imgSrc} />
+                                <MarqueeComponent direction="right" speed={25} imgSrc={imgSrc1} />
                             </div>
                         </div>
                     </motion.div>
