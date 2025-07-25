@@ -1,21 +1,7 @@
 import { motion } from 'motion/react';
 import { Rocket } from 'lucide-react'
 import { ownerImg } from '../assets';
-const students = [
-  'Verified PG Listings with Photos',
-  'Admin Dashboard for Property Management',
-  'Seamless Property Uploads with Cloudinary',
-  'Secure Admin Login & JWT Auth',
-  'Fast Deployment on Vercel (Serverless)'
-];
 
-const tenants = [
-  'Verified PG Listings with Photos',
-  'Admin Dashboard for Property Management',
-  'Seamless Property Uploads with Cloudinary',
-  'Secure Admin Login & JWT Auth',
-  'Fast Deployment on Vercel (Serverless)'
-];
 
 const itemVariant = {
   hidden: { opacity: 0, y: 20 },
