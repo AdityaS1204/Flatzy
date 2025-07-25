@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { whatsappRedirect } from '../Utils/Whatsapp';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,7 +23,7 @@ const Navbar = () => {
       
       {/* Desktop Menu */}
       <ul className="hidden md:flex gap-6 text-[#64748B] font-medium">
-        <a href="#"><li className="cursor-pointer px-3 py-1 rounded-full hover:bg-[#F1F5F9] hover:text-[#1E293B] transition-colors">Home</li></a>
+      <Link to="/">  <a href="#"><li className="cursor-pointer px-3 py-1 rounded-full hover:bg-[#F1F5F9] hover:text-[#1E293B] transition-colors">Home</li></a></Link>
         <a href="#services"><li className="cursor-pointer px-3 py-1 rounded-full hover:bg-[#F1F5F9] hover:text-[#1E293B] transition-colors">Service</li></a>
         <a href="#refer"><li className="cursor-pointer px-3 py-1 rounded-full hover:bg-[#F1F5F9] hover:text-[#1E293B] transition-colors">Refer & Earn</li></a>
         <a href="#testimonials"><li className="cursor-pointer px-3 py-1 rounded-full hover:bg-[#F1F5F9] hover:text-[#1E293B] transition-colors">Testimonials</li></a>
