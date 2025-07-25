@@ -4,21 +4,146 @@ import {
   Search, 
   Filter, 
   MapPin, 
-  DollarSign, 
   Building2,
   Wifi,
   Snowflake,
   Car,
   UtensilsCrossed,
-  Star,
   Heart,
   Share2,
   Phone,
   Mail
 } from 'lucide-react';
+import { whatsappRedirect } from '../Utils/Whatsapp';
+import { gridImg1, gridImg2, gridImg3 } from '../assets/index';
+import { Navbar } from '../Components';
 
-// Property Card Component
-const PropertyCard = ({ property, theme }) => {
+// Dummy listings data
+const dummyListings = [
+  {
+    _id: '1',
+    name: 'Modern 2BHK Apartment near YCCE',
+    address: 'Wanadongri, Near YCCE College, Nagpur',
+    propertyType: '2BHK',
+    rent: 12000,
+    status: 'available',
+    description: 'Spacious 2BHK apartment with modern amenities, located near YCCE College. Perfect for students and working professionals.',
+    images: [{ url: gridImg1 }],
+    amenities: ['wifi', 'ac', 'parking'],
+    nearbyPlaces: ['YCCE College', 'Shopping Mall', 'Bus Stop']
+  },
+  {
+    _id: '2',
+    name: 'Boys PG with Mess Facility',
+    address: 'Hingna Road, Near Raisoni College, Nagpur',
+    propertyType: 'PG',
+    rent: 6500,
+    status: 'available',
+    description: 'Comfortable boys PG with daily mess facility. Clean rooms with attached bathrooms and 24/7 security.',
+    images: [{ url: gridImg2 }],
+    amenities: ['wifi', 'food', 'ac'],
+    nearbyPlaces: ['Raisoni College', 'Market', 'Hospital']
+  },
+  {
+    _id: '3',
+    name: 'Girls PG with AC Rooms',
+    address: 'Shraddhanand Peth, Near Raisoni College, Nagpur',
+    propertyType: 'PG',
+    rent: 7000,
+    status: 'available',
+    description: 'Exclusive girls PG with AC rooms and mess facility. Safe and secure environment with modern amenities.',
+    images: [{ url: gridImg3 }],
+    amenities: ['wifi', 'ac', 'food'],
+    nearbyPlaces: ['Raisoni College', 'Library', 'Park']
+  },
+  {
+    _id: '4',
+    name: 'Luxury 3BHK Villa',
+    address: 'Civil Lines, Near Law College, Nagpur',
+    propertyType: '3BHK',
+    rent: 25000,
+    status: 'available',
+    description: 'Premium 3BHK villa with garden, parking space, and modern amenities. Perfect for families.',
+    images: [{ url: gridImg1 }],
+    amenities: ['wifi', 'ac', 'parking', 'food'],
+    nearbyPlaces: ['Law College', 'Shopping Center', 'Restaurant']
+  },
+  {
+    _id: '5',
+    name: 'Studio Apartment for Students',
+    address: 'Sadar, Near Medical College, Nagpur',
+    propertyType: 'Studio',
+    rent: 8000,
+    status: 'rented',
+    description: 'Compact studio apartment ideal for students. Fully furnished with study area and kitchenette.',
+    images: [{ url: gridImg2 }],
+    amenities: ['wifi', 'ac'],
+    nearbyPlaces: ['Medical College', 'Hospital', 'Market']
+  },
+  {
+    _id: '6',
+    name: 'Family 4BHK Apartment',
+    address: 'Dharampeth, Near Cathedral, Nagpur',
+    propertyType: '4BHK',
+    rent: 35000,
+    status: 'available',
+    description: 'Spacious 4BHK apartment in prime location. Perfect for large families with all modern conveniences.',
+    images: [{ url: gridImg3 }],
+    amenities: ['wifi', 'ac', 'parking', 'food'],
+    nearbyPlaces: ['Cathedral', 'Schools', 'Shopping Mall']
+  },
+  {
+    _id: '7',
+    name: 'Working Professional PG',
+    address: 'Ramdaspeth, Near IT Park, Nagpur',
+    propertyType: 'PG',
+    rent: 9000,
+    status: 'available',
+    description: 'Premium PG for working professionals. Clean rooms with modern amenities and 24/7 security.',
+    images: [{ url: gridImg1 }],
+    amenities: ['wifi', 'ac', 'parking'],
+    nearbyPlaces: ['IT Park', 'Office Complex', 'Restaurant']
+  },
+  {
+    _id: '8',
+    name: 'Cozy 1BHK Flat',
+    address: 'Gandhibagh, Near Railway Station, Nagpur',
+    propertyType: '1BHK',
+    rent: 10000,
+    status: 'available',
+    description: 'Comfortable 1BHK flat in central location. Well-connected with all basic amenities.',
+    images: [{ url: gridImg2 }],
+    amenities: ['wifi', 'ac'],
+    nearbyPlaces: ['Railway Station', 'Bus Stand', 'Market']
+  },
+  {
+    _id: '9',
+    name: 'Student Hostel for Girls',
+    address: 'Dhantoli, Near Engineering College, Nagpur',
+    propertyType: 'PG',
+    rent: 7500,
+    status: 'available',
+    description: 'Safe and comfortable hostel for female students. Clean rooms with mess facility and security.',
+    images: [{ url: gridImg3 }],
+    amenities: ['wifi', 'ac', 'food'],
+    nearbyPlaces: ['Engineering College', 'Library', 'Park']
+  },
+  {
+    _id: '10',
+    name: 'Premium 2BHK with Balcony',
+    address: 'Sitabuldi, Near Shopping Center, Nagpur',
+    propertyType: '2BHK',
+    rent: 15000,
+    status: 'available',
+    description: 'Beautiful 2BHK apartment with balcony and city view. Modern amenities and prime location.',
+    images: [{ url: gridImg1 }],
+    amenities: ['wifi', 'ac', 'parking'],
+    nearbyPlaces: ['Shopping Center', 'Cinema', 'Restaurant']
+  }
+];
+
+// Property Card Component - Horizontal Layout
+const PropertyCard = ({ property }) => {
   const amenitiesList = [
     { id: 'wifi', label: 'WiFi', icon: Wifi },
     { id: 'ac', label: 'AC', icon: Snowflake },
@@ -26,112 +151,123 @@ const PropertyCard = ({ property, theme }) => {
     { id: 'food', label: 'Food', icon: UtensilsCrossed }
   ];
 
-  return (
-    <div className={`p-6 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl ${
-      theme === 'dark' 
-        ? 'bg-gray-800/50 border border-gray-700 hover:border-gray-600' 
-        : 'bg-white border border-gray-200 hover:border-gray-300'
-    }`}>
-      {/* Property Image */}
-      {property.images && property.images.length > 0 && (
-        <div className="relative mb-4">
-          <img
-            src={property.images[0].url}
-            alt={property.name}
-            className="w-full h-48 object-cover rounded-lg"
-          />
-          <div className="absolute top-3 right-3 flex gap-2">
-            <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
-              <Heart className="w-4 h-4 text-red-500" />
-            </button>
-            <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
-              <Share2 className="w-4 h-4 text-blue-500" />
-            </button>
-          </div>
-          {property.status === 'rented' && (
-            <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-sm">
-              Rented
+  const visitmsg = `hey, there i want to know more about ${property.name} in ${property.address}`;
+  const booknowmsg = `hey, there i want to book ${property.name} in ${property.address}`;
+
+    return (
+    <div className="bg-white rounded-2xl shadow-lg border border-[#E2E8F0] hover:shadow-xl transition-all duration-300 overflow-hidden">
+      <div className="flex flex-col lg:flex-row min-h-[200px] lg:h-96">
+        {/* Property Image - Top on mobile, Left on desktop */}
+        {property.images && property.images.length > 0 && (
+          <div className="relative w-full lg:w-1/3 h-48 lg:h-full">
+            <img
+              src={property.images[0].url}
+              alt={property.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute top-3 right-3 flex gap-2">
+              <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
+                <Heart className="w-4 h-4 text-red-500" />
+              </button>
+              <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
+                <Share2 className="w-4 h-4 text-[#2563EB]" />
+              </button>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Property Details */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-lg font-semibold mb-1">{property.name}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <MapPin className="w-4 h-4" />
-            {property.address}
-          </div>
-        </div>
-
-        {/* Property Type and Price */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium">{property.propertyType}</span>
-          </div>
-          {property.rent && (
-            <div className="flex items-center gap-1">
-              <DollarSign className="w-4 h-4 text-green-600" />
-              <span className="font-semibold">₹{property.rent.toLocaleString()}</span>
-              <span className="text-sm text-gray-500">/month</span>
-            </div>
-          )}
-        </div>
-
-        {/* Amenities */}
-        {property.amenities && property.amenities.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {property.amenities.map(amenity => {
-              const amenityInfo = amenitiesList.find(a => a.id === amenity);
-              if (!amenityInfo) return null;
-              const Icon = amenityInfo.icon;
-              return (
-                <span key={amenity} className="flex items-center gap-1 text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded">
-                  <Icon className="w-3 h-3" />
-                  {amenityInfo.label}
-                </span>
-              );
-            })}
+            {property.status === 'rented' && (
+              <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                Rented
+              </div>
+            )}
           </div>
         )}
 
-        {/* Nearby Places */}
-        {property.nearbyPlaces && property.nearbyPlaces.length > 0 && (
-          <div>
-            <p className="text-sm font-medium mb-1">Nearby:</p>
-            <div className="flex flex-wrap gap-1">
-              {property.nearbyPlaces.slice(0, 3).map((place, index) => (
-                <span key={index} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
-                  {place}
-                </span>
-              ))}
-              {property.nearbyPlaces.length > 3 && (
-                <span className="text-xs text-gray-500">+{property.nearbyPlaces.length - 3} more</span>
+        {/* Property Details - Bottom on mobile, Right on desktop */}
+        <div className="flex-1 p-4 lg:p-6 flex flex-col justify-between">
+          <div className="space-y-2 lg:space-y-4">
+            {/* Header */}
+            <div>
+              <h3 className="text-lg lg:text-xl font-semibold text-[#1E293B] mb-2">{property.name}</h3>
+              <div className="flex items-center gap-2 text-sm text-[#64748B] mb-3">
+                <MapPin className="w-4 h-4" />
+                <span className="line-clamp-1">{property.address}</span>
+              </div>
+            </div>
+
+            {/* Property Type and Price */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-[#2563EB]" />
+                <span className="text-sm font-medium text-[#1E293B]">{property.propertyType}</span>
+              </div>
+              {property.rent && (
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-base lg:text-lg text-[#2563EB]">₹{property.rent.toLocaleString()}</span>
+                  <span className="text-xs lg:text-sm text-[#64748B]">/month</span>
+                </div>
               )}
             </div>
+
+            {/* Amenities */}
+            {property.amenities && property.amenities.length > 0 && (
+              <div className="flex flex-wrap gap-1 lg:gap-2">
+                {property.amenities.map(amenity => {
+                  const amenityInfo = amenitiesList.find(a => a.id === amenity);
+                  if (!amenityInfo) return null;
+                  const Icon = amenityInfo.icon;
+                  return (
+                    <span key={amenity} className="flex items-center gap-1 text-xs px-2 lg:px-3 py-1 bg-[#EFF6FF] text-[#2563EB] rounded-full font-medium">
+                      <Icon className="w-3 h-3" />
+                      {amenityInfo.label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Nearby Places */}
+            {property.nearbyPlaces && property.nearbyPlaces.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-[#1E293B] mb-2">Nearby:</p>
+                <div className="flex flex-wrap gap-1 lg:gap-2">
+                  {property.nearbyPlaces.slice(0, 2).map((place, index) => (
+                    <span key={index} className="text-xs px-2 lg:px-3 py-1 bg-[#F8FAFC] text-[#64748B] rounded-full border border-[#E2E8F0]">
+                      {place}
+                    </span>
+                  ))}
+                  {property.nearbyPlaces.length > 2 && (
+                    <span className="text-xs text-[#64748B]">+{property.nearbyPlaces.length - 2} more</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            {property.description && (
+              <p className="text-sm text-[#64748B] line-clamp-2">
+                {property.description}
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Description */}
-        {property.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-            {property.description}
-          </p>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <button className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-            <Phone className="w-4 h-4 inline mr-2" />
-            Contact
-          </button>
-          <button className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm">
-            <Mail className="w-4 h-4 inline mr-2" />
-            Message
-          </button>
+          {/* Action Buttons */}
+          <div className="flex gap-2 lg:gap-3 pt-3 lg:pt-4 border-t border-[#E2E8F0] mt-3 lg:mt-4">
+            <button 
+              className="flex-1 py-2 px-3 lg:px-4 bg-[#2563EB] text-white rounded-lg hover:bg-[#1E40AF] transition-colors text-xs lg:text-sm font-medium flex items-center justify-center gap-1 lg:gap-2"
+              onClick={() => whatsappRedirect(visitmsg)}
+            >
+              <Phone className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span className="hidden sm:inline">Schedule Visit</span>
+              <span className="sm:hidden">Visit</span>
+            </button>
+            <button 
+              className="flex-1 py-2 px-3 lg:px-4 border border-[#2563EB] text-[#2563EB] rounded-lg hover:bg-[#2563EB] hover:text-white transition-colors text-xs lg:text-sm font-medium flex items-center justify-center gap-1 lg:gap-2"
+              onClick={() => whatsappRedirect(booknowmsg)}
+            >
+              <Mail className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span className="hidden sm:inline">Book Now</span>
+              <span className="sm:hidden">Book</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -139,7 +275,7 @@ const PropertyCard = ({ property, theme }) => {
 };
 
 // Search and Filter Component
-const SearchFilters = ({ onSearch, onFilter, theme }) => {
+const SearchFilters = ({ onSearch, onFilter }) => {
   const { register, handleSubmit, watch } = useForm();
   const [showFilters, setShowFilters] = useState(false);
 
@@ -151,32 +287,35 @@ const SearchFilters = ({ onSearch, onFilter, theme }) => {
   const statusOptions = ['All', 'available', 'rented', 'maintenance'];
 
   return (
-    <div className={`p-6 rounded-lg shadow-lg mb-6 ${
-      theme === 'dark' 
-        ? 'bg-gray-800/50 border border-gray-700' 
-        : 'bg-white border border-gray-200'
-    }`}>
-      {/* Search Bar */}
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            {...register('search')}
-            type="text"
-            placeholder="Search properties by name, address, or description..."
-            className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-              theme === 'dark' 
-                ? 'bg-gray-700 border-gray-600 text-white' 
-                : 'bg-white border-gray-300'
-            } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-          />
+    <div className="p-4 lg:p-6 mb-8">
+      
+      {/* Search Bar - Home Page Style */}
+      <form onSubmit={handleSubmit(onSubmit)} className="mb-6">
+        <div className="flex justify-center w-full gap-3 sm:gap-4">
+          <div className='flex flex-col sm:flex-row justify-between w-11/12 sm:w-6/12 gap-3 sm:gap-7'>
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#64748B] w-5 h-5" />
+              <input
+                {...register('search')}
+                type="text"
+                placeholder="Search properties by name, address, or description..."
+                className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] placeholder-[#64748B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
+              />
+            </div>
+            <button 
+              type="submit"
+              className="bg-[#2563EB] text-white ring-2 ring-[#2563EB] px-4 sm:px-6 py-3 rounded-full hover:scale-105 hover:bg-[#1E40AF] hover:ring-[#1E40AF] hover:cursor-pointer duration-300 transition text-sm sm:text-base font-medium"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </form>
 
       {/* Filter Toggle */}
       <button
         onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+        className="flex items-center gap-2 text-sm font-medium text-[#64748B] hover:text-[#1E293B] transition-colors"
       >
         <Filter className="w-4 h-4" />
         Filters
@@ -184,19 +323,15 @@ const SearchFilters = ({ onSearch, onFilter, theme }) => {
 
       {/* Filter Options */}
       {showFilters && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-6 pt-6 border-t border-[#E2E8F0]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
             {/* Property Type Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">Property Type</label>
+              <label className="block text-sm font-medium text-[#1E293B] mb-2">Property Type</label>
               <select
                 {...register('propertyType')}
                 onChange={(e) => onFilter({ propertyType: e.target.value })}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
               >
                 {propertyTypes.map(type => (
                   <option key={type} value={type === 'All' ? '' : type}>
@@ -208,15 +343,11 @@ const SearchFilters = ({ onSearch, onFilter, theme }) => {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
+              <label className="block text-sm font-medium text-[#1E293B] mb-2">Status</label>
               <select
                 {...register('status')}
                 onChange={(e) => onFilter({ status: e.target.value })}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
               >
                 {statusOptions.map(status => (
                   <option key={status} value={status === 'All' ? '' : status}>
@@ -228,16 +359,12 @@ const SearchFilters = ({ onSearch, onFilter, theme }) => {
 
             {/* Price Range Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">Max Price</label>
+              <label className="block text-sm font-medium text-[#1E293B] mb-2">Max Price</label>
               <input
                 {...register('maxPrice')}
                 type="number"
                 placeholder="Max rent amount"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] placeholder-[#64748B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
               />
             </div>
           </div>
@@ -249,97 +376,69 @@ const SearchFilters = ({ onSearch, onFilter, theme }) => {
 
 // Main Listings Component
 const Listings = () => {
-  const [theme, setTheme] = useState('light');
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({});
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 0,
-    hasNextPage: false,
-    hasPrevPage: false
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredListings, setFilteredListings] = useState([]);
 
-  // Load theme from localStorage
+  // Initialize with dummy data
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
+    setListings(dummyListings);
+    setFilteredListings(dummyListings);
+    setLoading(false);
   }, []);
 
-  // Fetch listings from API
-  const fetchListings = async (searchParams = {}) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Build query string
-      const params = new URLSearchParams({
-        page: searchParams.page || 1,
-        limit: 12,
-        ...filters,
-        ...searchParams
-      });
-
-      const response = await fetch(`/api/listings?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setListings(data.data);
-        setPagination(data.pagination);
-      } else {
-        setError(data.message || 'Failed to fetch listings');
-      }
-    } catch (err) {
-      setError('Failed to connect to server');
-      console.error('Error fetching listings:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial fetch
+  // Filter listings based on search and filters
   useEffect(() => {
-    fetchListings();
-  }, [filters]);
+    let filtered = [...listings];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(property =>
+        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Property type filter
+    if (filters.propertyType && filters.propertyType !== 'All') {
+      filtered = filtered.filter(property => property.propertyType === filters.propertyType);
+    }
+
+    // Status filter
+    if (filters.status && filters.status !== 'All') {
+      filtered = filtered.filter(property => property.status === filters.status);
+    }
+
+    // Price filter
+    if (filters.maxPrice) {
+      filtered = filtered.filter(property => property.rent <= parseInt(filters.maxPrice));
+    }
+
+    setFilteredListings(filtered);
+  }, [listings, searchTerm, filters]);
 
   // Handle search
   const handleSearch = (searchData) => {
-    const newFilters = { ...filters };
-    if (searchData.search) {
-      newFilters.search = searchData.search;
-    }
-    setFilters(newFilters);
-    fetchListings({ search: searchData.search });
+    setSearchTerm(searchData.search || '');
   };
 
   // Handle filters
   const handleFilter = (filterData) => {
-    const newFilters = { ...filters, ...filterData };
-    // Remove empty values
-    Object.keys(newFilters).forEach(key => {
-      if (!newFilters[key]) delete newFilters[key];
-    });
-    setFilters(newFilters);
-  };
-
-  // Handle pagination
-  const handlePageChange = (page) => {
-    fetchListings({ page });
+    setFilters(prev => ({ ...prev, ...filterData }));
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      theme === 'dark' 
-        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white' 
-        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 text-gray-900'
-    }`}>
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen font-sans bg-[#F8FAFC]">
+      <Navbar />
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Find Your Perfect Home</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[#1E293B] mb-4">Find Your Perfect Stay</h1>
+          <p className="text-base lg:text-lg text-[#64748B]">
             Discover amazing properties in your area
           </p>
         </div>
@@ -348,14 +447,13 @@ const Listings = () => {
         <SearchFilters 
           onSearch={handleSearch} 
           onFilter={handleFilter} 
-          theme={theme} 
         />
 
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading properties...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB] mx-auto"></div>
+            <p className="mt-4 text-[#64748B]">Loading properties...</p>
           </div>
         )}
 
@@ -364,8 +462,8 @@ const Listings = () => {
           <div className="text-center py-12">
             <p className="text-red-500 mb-4">{error}</p>
             <button
-              onClick={() => fetchListings()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-[#2563EB] text-white rounded-xl hover:bg-[#1E40AF] transition-colors font-medium"
             >
               Try Again
             </button>
@@ -377,53 +475,27 @@ const Listings = () => {
           <>
             {/* Results Count */}
             <div className="mb-6">
-              <p className="text-gray-600 dark:text-gray-400">
-                Showing {listings.length} of {pagination.totalItems} properties
+              <p className="text-[#64748B]">
+                Showing {filteredListings.length} of {listings.length} properties
               </p>
             </div>
 
-            {/* Properties Grid */}
-            {listings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {listings.map(property => (
-                  <PropertyCard 
-                    key={property._id} 
-                    property={property} 
-                    theme={theme} 
-                  />
-                ))}
-              </div>
-            ) : (
+                                                   {/* Properties Grid - Responsive */}
+              {filteredListings.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 lg:gap-6">
+                 {filteredListings.map(property => (
+                   <PropertyCard 
+                     key={property._id} 
+                     property={property} 
+                   />
+                 ))}
+               </div>
+             ) : (
               <div className="text-center py-12">
-                <Building2 className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">
+                <Building2 className="w-16 h-16 mx-auto text-[#64748B] mb-4" />
+                <p className="text-[#64748B]">
                   No properties found matching your criteria
                 </p>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-8">
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                  disabled={!pagination.hasPrevPage}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Previous
-                </button>
-                
-                <span className="px-4 py-2 text-sm">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-                
-                <button
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                  disabled={!pagination.hasNextPage}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Next
-                </button>
               </div>
             )}
           </>
