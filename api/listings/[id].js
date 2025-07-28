@@ -1,7 +1,6 @@
 import dbConnect from '../../../lib/dbConnect.js';
 import Listing from '../../../lib/models/Listing.js';
 import { uploadMultipleImages, deleteImage } from '../../../lib/cloudinary.js';
-import { authenticateAdmin } from '../../../lib/middleware/auth.js';
 
 // Handle GET request - Get single listing by ID
 const getListing = async (req, res) => {
@@ -205,12 +204,10 @@ const handler = async (req, res) => {
       return getListing(req, res);
     
     case 'PUT':
-      // Apply authentication middleware for PUT
-      return authenticateAdmin(req, res, () => updateListing(req, res));
+      return updateListing(req, res);
     
     case 'DELETE':
-      // Apply authentication middleware for DELETE
-      return authenticateAdmin(req, res, () => deleteListing(req, res));
+      return deleteListing(req, res);
     
     default:
       return res.status(405).json({

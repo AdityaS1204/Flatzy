@@ -1,7 +1,116 @@
 import dbConnect from '../../lib/dbConnect.js';
 import Listing from '../../lib/models/Listing.js';
 import { uploadMultipleImages } from '../../lib/cloudinary.js';
-import { authenticateAdmin } from '../../lib/middleware/auth.js';
+
+// Simple multipart form data parser for serverless environments
+const parseMultipartData = async (req) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      try {
+        const buffer = Buffer.concat(chunks);
+        const contentType = req.headers['content-type'];
+        
+        // If no content type or not multipart, try JSON first
+        if (!contentType || !contentType.includes('multipart/form-data')) {
+          try {
+            const body = JSON.parse(buffer.toString());
+            req.body = body;
+            req.files = [];
+            resolve();
+            return;
+          } catch (jsonError) {
+            // If JSON parsing fails, treat as form data
+            const formData = {};
+            const queryString = buffer.toString();
+            const pairs = queryString.split('&');
+            
+            pairs.forEach(pair => {
+              const [key, value] = pair.split('=');
+              if (key && value) {
+                formData[decodeURIComponent(key)] = decodeURIComponent(value);
+              }
+            });
+            
+            req.body = formData;
+            req.files = [];
+            resolve();
+            return;
+          }
+        }
+        
+        // Handle multipart form data
+        const boundary = contentType.split('boundary=')[1];
+        if (!boundary) {
+          reject(new Error('No boundary found in multipart content type'));
+          return;
+        }
+        
+        const parts = buffer.toString('binary').split(`--${boundary}`);
+        
+        const formData = {};
+        const files = [];
+        
+        parts.forEach(part => {
+          if (part.includes('Content-Disposition: form-data')) {
+            const lines = part.split('\r\n');
+            let name = '';
+            let value = '';
+            let filename = '';
+            let contentType = '';
+            let dataStart = false;
+            let fileData = [];
+            
+            lines.forEach(line => {
+              if (line.startsWith('Content-Disposition: form-data; name=')) {
+                const nameMatch = line.match(/name="([^"]+)"/);
+                if (nameMatch) {
+                  name = nameMatch[1];
+                }
+                const filenameMatch = line.match(/filename="([^"]+)"/);
+                if (filenameMatch) {
+                  filename = filenameMatch[1];
+                }
+              } else if (line.startsWith('Content-Type:')) {
+                contentType = line.split(': ')[1];
+              } else if (line === '') {
+                dataStart = true;
+              } else if (dataStart && line !== '--' && line !== '') {
+                if (filename) {
+                  fileData.push(line);
+                } else {
+                  value += line;
+                }
+              }
+            });
+            
+            if (filename && fileData.length > 0) {
+              // Handle file
+              const fileBuffer = Buffer.from(fileData.join('\r\n'), 'binary');
+              files.push({
+                fieldname: name,
+                originalname: filename,
+                mimetype: contentType,
+                buffer: fileBuffer
+              });
+            } else if (name) {
+              // Handle form field
+              formData[name] = value;
+            }
+          }
+        });
+        
+        req.body = formData;
+        req.files = files;
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on('error', reject);
+  });
+};
 
 // Handle GET request - Get all listings
 const getListings = async (req, res) => {
@@ -13,7 +122,9 @@ const getListings = async (req, res) => {
     const { 
       search, 
       propertyType, 
-      status, 
+      accommodationType,
+      status,
+      maxPrice,
       page = 1, 
       limit = 10,
       sortBy = 'createdAt',
@@ -22,6 +133,8 @@ const getListings = async (req, res) => {
 
     // Build filter object
     const filter = {};
+    
+    console.log('🔍 Query parameters:', { search, propertyType, accommodationType, status, maxPrice });
     
     // Add search filter
     if (search) {
@@ -37,10 +150,38 @@ const getListings = async (req, res) => {
       filter.propertyType = propertyType;
     }
 
+    // Add accommodation type filter
+    if (accommodationType) {
+      filter.accommodationType = accommodationType;
+    }
+
     // Add status filter
     if (status) {
       filter.status = status;
     }
+
+    // Add max price filter
+    if (maxPrice) {
+      const priceFilter = {
+        $or: [
+          { rent: { $lte: parseInt(maxPrice) } },
+          { offer: { $lte: parseInt(maxPrice) } }
+        ]
+      };
+      
+      // If we already have a search filter, combine them with $and
+      if (filter.$or) {
+        filter.$and = [
+          { $or: filter.$or },
+          priceFilter
+        ];
+        delete filter.$or;
+      } else {
+        Object.assign(filter, priceFilter);
+      }
+    }
+    
+    console.log('🔍 Final filter object:', JSON.stringify(filter, null, 2));
 
     // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -101,11 +242,30 @@ const addListing = async (req, res) => {
       rent,
       offer,
       propertyType,
+      accommodationType,
       amenities,
       nearbyPlaces,
       description,
       status = 'available'
     } = req.body;
+
+    // Parse JSON fields that come as strings from FormData
+    let parsedAmenities = [];
+    let parsedNearbyPlaces = [];
+
+    try {
+      if (amenities) {
+        parsedAmenities = typeof amenities === 'string' ? JSON.parse(amenities) : amenities;
+      }
+      if (nearbyPlaces) {
+        parsedNearbyPlaces = typeof nearbyPlaces === 'string' ? JSON.parse(nearbyPlaces) : nearbyPlaces;
+      }
+    } catch (parseError) {
+      console.error('Error parsing JSON fields:', parseError);
+      // Use empty arrays if parsing fails
+      parsedAmenities = [];
+      parsedNearbyPlaces = [];
+    }
 
     // Validate required fields
     if (!name || !owner || !address) {
@@ -147,8 +307,9 @@ const addListing = async (req, res) => {
       rent: rent ? parseFloat(rent) : undefined,
       offer: offer ? parseFloat(offer) : undefined,
       propertyType,
-      amenities: amenities || [],
-      nearbyPlaces: nearbyPlaces || [],
+      accommodationType: accommodationType || 'unisex',
+      amenities: parsedAmenities,
+      nearbyPlaces: parsedNearbyPlaces,
       description,
       status,
       images
@@ -191,8 +352,25 @@ const handler = async (req, res) => {
       return getListings(req, res);
     
     case 'POST':
-      // Apply authentication middleware for POST
-      return authenticateAdmin(req, res, () => addListing(req, res));
+      // Only parse multipart data if content type indicates it
+      const contentType = req.headers['content-type'];
+      if (contentType && contentType.includes('multipart/form-data')) {
+        return parseMultipartData(req).then(() => {
+          // No authentication required for adding listings
+          return addListing(req, res);
+        }).catch(err => {
+          console.error('Error parsing multipart form data:', err);
+          return res.status(400).json({
+            success: false,
+            message: 'File upload error',
+            error: err.message
+          });
+        });
+      } else {
+        // Let Vercel handle JSON parsing automatically
+        // No authentication required for adding listings
+        return addListing(req, res);
+      }
     
     default:
       return res.status(405).json({
