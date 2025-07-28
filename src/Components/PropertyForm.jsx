@@ -34,6 +34,7 @@ const PropertyForm = ({ onAddProperty, theme }) => {
       rent: '',
       offer: '',
       propertyType: '1BHK',
+      accommodationType: 'unisex',
       amenities: [],
       nearbyPlaces: [],
       description: ''
@@ -150,9 +151,6 @@ const PropertyForm = ({ onAddProperty, theme }) => {
       // Send to API
       const response = await fetch(API_ENDPOINTS.LISTINGS, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-        },
         body: formData
       });
 
@@ -191,13 +189,13 @@ const PropertyForm = ({ onAddProperty, theme }) => {
   };
 
   return (
-    <div className={`p-6 rounded-lg shadow-lg ${
+    <div className={`p-4 sm:p-6 rounded-lg shadow-lg ${
       theme === 'dark' 
         ? 'bg-gray-800/50 border border-gray-700' 
         : 'bg-white border border-gray-200'
     }`}>
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <Plus className="w-5 h-5" />
+      <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 flex items-center gap-2">
+        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
         Add New Property
       </h2>
       
@@ -207,26 +205,26 @@ const PropertyForm = ({ onAddProperty, theme }) => {
           submitMessage.startsWith('✅') 
             ? 'bg-green-100 text-green-800 border border-green-200' 
             : 'bg-red-100 text-red-800 border border-red-200'
-        }`}>
+        } text-sm sm:text-base`}>
           {submitMessage}
         </div>
       )}
       
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
         {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Property Name</label>
+            <label className="block text-sm sm:text-base font-medium mb-2">Property Name</label>
             <input
               type="text"
               {...register("name", { required: "Property name is required" })}
-              className={`w-full px-3 py-2 rounded-lg border ${
+              className={`w-full px-3 sm:px-4 py-2 rounded-lg border ${
                 errors.name 
                   ? 'border-red-500' 
                   : theme === 'dark' 
                     ? 'bg-gray-700 border-gray-600 text-white' 
                     : 'bg-white border-gray-300'
-              } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base`}
               placeholder="Enter property name"
             />
             {errors.name && (
@@ -302,21 +300,38 @@ const PropertyForm = ({ onAddProperty, theme }) => {
           </div>
         </div>
 
-        {/* Property Type */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Property Type</label>
-          <select
-            {...register("propertyType")}
-            className={`w-full px-3 py-2 rounded-lg border ${
-              theme === 'dark' 
-                ? 'bg-gray-700 border-gray-600 text-white' 
-                : 'bg-white border-gray-300'
-            } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-          >
-            {propertyTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+        {/* Property Type and Accommodation Type */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Property Type</label>
+            <select
+              {...register("propertyType")}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300'
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+            >
+              {propertyTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Accommodation Type</label>
+            <select
+              {...register("accommodationType")}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300'
+              } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+            >
+              <option value="unisex">Unisex</option>
+              <option value="male">Male Only</option>
+              <option value="female">Female Only</option>
+            </select>
+          </div>
         </div>
 
         {/* Amenities */}
