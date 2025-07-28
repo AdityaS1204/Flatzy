@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -9,7 +10,6 @@ import {
   Snowflake,
   Car,
   UtensilsCrossed,
-  Heart,
   Share2,
   Phone,
   Mail
@@ -17,130 +17,7 @@ import {
 import { whatsappRedirect } from '../Utils/Whatsapp';
 import { gridImg1, gridImg2, gridImg3 } from '../assets/index';
 import { Navbar } from '../Components';
-
-// Dummy listings data
-const dummyListings = [
-  {
-    _id: '1',
-    name: 'Modern 2BHK Apartment near YCCE',
-    address: 'Wanadongri, Near YCCE College, Nagpur',
-    propertyType: '2BHK',
-    rent: 12000,
-    status: 'available',
-    description: 'Spacious 2BHK apartment with modern amenities, located near YCCE College. Perfect for students and working professionals.',
-    images: [{ url: gridImg1 }],
-    amenities: ['wifi', 'ac', 'parking'],
-    nearbyPlaces: ['YCCE College', 'Shopping Mall', 'Bus Stop']
-  },
-  {
-    _id: '2',
-    name: 'Boys PG with Mess Facility',
-    address: 'Hingna Road, Near Raisoni College, Nagpur',
-    propertyType: 'PG',
-    rent: 6500,
-    status: 'available',
-    description: 'Comfortable boys PG with daily mess facility. Clean rooms with attached bathrooms and 24/7 security.',
-    images: [{ url: gridImg2 }],
-    amenities: ['wifi', 'food', 'ac'],
-    nearbyPlaces: ['Raisoni College', 'Market', 'Hospital']
-  },
-  {
-    _id: '3',
-    name: 'Girls PG with AC Rooms',
-    address: 'Shraddhanand Peth, Near Raisoni College, Nagpur',
-    propertyType: 'PG',
-    rent: 7000,
-    status: 'available',
-    description: 'Exclusive girls PG with AC rooms and mess facility. Safe and secure environment with modern amenities.',
-    images: [{ url: gridImg3 }],
-    amenities: ['wifi', 'ac', 'food'],
-    nearbyPlaces: ['Raisoni College', 'Library', 'Park']
-  },
-  {
-    _id: '4',
-    name: 'Luxury 3BHK Villa',
-    address: 'Civil Lines, Near Law College, Nagpur',
-    propertyType: '3BHK',
-    rent: 25000,
-    status: 'available',
-    description: 'Premium 3BHK villa with garden, parking space, and modern amenities. Perfect for families.',
-    images: [{ url: gridImg1 }],
-    amenities: ['wifi', 'ac', 'parking', 'food'],
-    nearbyPlaces: ['Law College', 'Shopping Center', 'Restaurant']
-  },
-  {
-    _id: '5',
-    name: 'Studio Apartment for Students',
-    address: 'Sadar, Near Medical College, Nagpur',
-    propertyType: 'Studio',
-    rent: 8000,
-    status: 'rented',
-    description: 'Compact studio apartment ideal for students. Fully furnished with study area and kitchenette.',
-    images: [{ url: gridImg2 }],
-    amenities: ['wifi', 'ac'],
-    nearbyPlaces: ['Medical College', 'Hospital', 'Market']
-  },
-  {
-    _id: '6',
-    name: 'Family 4BHK Apartment',
-    address: 'Dharampeth, Near Cathedral, Nagpur',
-    propertyType: '4BHK',
-    rent: 35000,
-    status: 'available',
-    description: 'Spacious 4BHK apartment in prime location. Perfect for large families with all modern conveniences.',
-    images: [{ url: gridImg3 }],
-    amenities: ['wifi', 'ac', 'parking', 'food'],
-    nearbyPlaces: ['Cathedral', 'Schools', 'Shopping Mall']
-  },
-  {
-    _id: '7',
-    name: 'Working Professional PG',
-    address: 'Ramdaspeth, Near IT Park, Nagpur',
-    propertyType: 'PG',
-    rent: 9000,
-    status: 'available',
-    description: 'Premium PG for working professionals. Clean rooms with modern amenities and 24/7 security.',
-    images: [{ url: gridImg1 }],
-    amenities: ['wifi', 'ac', 'parking'],
-    nearbyPlaces: ['IT Park', 'Office Complex', 'Restaurant']
-  },
-  {
-    _id: '8',
-    name: 'Cozy 1BHK Flat',
-    address: 'Gandhibagh, Near Railway Station, Nagpur',
-    propertyType: '1BHK',
-    rent: 10000,
-    status: 'available',
-    description: 'Comfortable 1BHK flat in central location. Well-connected with all basic amenities.',
-    images: [{ url: gridImg2 }],
-    amenities: ['wifi', 'ac'],
-    nearbyPlaces: ['Railway Station', 'Bus Stand', 'Market']
-  },
-  {
-    _id: '9',
-    name: 'Student Hostel for Girls',
-    address: 'Dhantoli, Near Engineering College, Nagpur',
-    propertyType: 'PG',
-    rent: 7500,
-    status: 'available',
-    description: 'Safe and comfortable hostel for female students. Clean rooms with mess facility and security.',
-    images: [{ url: gridImg3 }],
-    amenities: ['wifi', 'ac', 'food'],
-    nearbyPlaces: ['Engineering College', 'Library', 'Park']
-  },
-  {
-    _id: '10',
-    name: 'Premium 2BHK with Balcony',
-    address: 'Sitabuldi, Near Shopping Center, Nagpur',
-    propertyType: '2BHK',
-    rent: 15000,
-    status: 'available',
-    description: 'Beautiful 2BHK apartment with balcony and city view. Modern amenities and prime location.',
-    images: [{ url: gridImg1 }],
-    amenities: ['wifi', 'ac', 'parking'],
-    nearbyPlaces: ['Shopping Center', 'Cinema', 'Restaurant']
-  }
-];
+import { API_ENDPOINTS } from '../config/api';
 
 // Property Card Component - Horizontal Layout
 const PropertyCard = ({ property }) => {
@@ -154,32 +31,32 @@ const PropertyCard = ({ property }) => {
   const visitmsg = `hey, there i want to know more about ${property.name} in ${property.address}`;
   const booknowmsg = `hey, there i want to book ${property.name} in ${property.address}`;
 
+  // Use default image if no images available
+  const propertyImage = property.images && property.images.length > 0 
+    ? property.images[0].url 
+    : gridImg1;
+
     return (
     <div className="bg-white rounded-2xl shadow-lg border border-[#E2E8F0] hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div className="flex flex-col lg:flex-row min-h-[200px] lg:h-96">
         {/* Property Image - Top on mobile, Left on desktop */}
-        {property.images && property.images.length > 0 && (
-          <div className="relative w-full lg:w-1/3 h-48 lg:h-full">
-            <img
-              src={property.images[0].url}
-              alt={property.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute top-3 right-3 flex gap-2">
-              <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
-                <Heart className="w-4 h-4 text-red-500" />
-              </button>
-              <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
-                <Share2 className="w-4 h-4 text-[#2563EB]" />
-              </button>
-            </div>
-            {property.status === 'rented' && (
-              <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                Rented
-              </div>
-            )}
+        <div className="relative w-full lg:w-1/3 h-48 lg:h-full">
+          <img
+            src={propertyImage}
+            alt={property.name}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors">
+              <Share2 className="w-4 h-4 text-[#2563EB]" />
+            </button>
           </div>
-        )}
+          {property.status === 'rented' && (
+            <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Rented
+            </div>
+          )}
+        </div>
 
         {/* Property Details - Bottom on mobile, Right on desktop */}
         <div className="flex-1 p-4 lg:p-6 flex flex-col justify-between">
@@ -198,13 +75,34 @@ const PropertyCard = ({ property }) => {
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-[#2563EB]" />
                 <span className="text-sm font-medium text-[#1E293B]">{property.propertyType}</span>
+                {property.accommodationType && property.accommodationType !== 'unisex' && (
+                  <span className="text-xs px-2 py-1 bg-[#FEF3C7] text-[#92400E] rounded-full font-medium">
+                    {property.accommodationType === 'male' ? 'Male Only' : 'Female Only'}
+                  </span>
+                )}
               </div>
-              {property.rent && (
-                <div className="flex items-center gap-1">
-                  <span className="font-bold text-base lg:text-lg text-[#2563EB]">₹{property.rent.toLocaleString()}</span>
-                  <span className="text-xs lg:text-sm text-[#64748B]">/month</span>
-                </div>
-              )}
+              <div className="flex flex-col items-end">
+                {property.offer && property.offer < property.rent ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-base lg:text-lg text-[#059669]">₹{property.offer.toLocaleString()}</span>
+                      <span className="text-xs lg:text-sm text-[#64748B]">/month</span>
+                    </div>
+                    {property.rent && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium text-sm text-[#64748B] line-through">₹{property.rent.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  property.rent && (
+                    <div className="flex items-center gap-1">
+                      <span className="font-bold text-base lg:text-lg text-[#2563EB]">₹{property.rent.toLocaleString()}</span>
+                      <span className="text-xs lg:text-sm text-[#64748B]">/month</span>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
 
             {/* Amenities */}
@@ -275,8 +173,12 @@ const PropertyCard = ({ property }) => {
 };
 
 // Search and Filter Component
-const SearchFilters = ({ onSearch, onFilter }) => {
-  const { register, handleSubmit, watch } = useForm();
+const SearchFilters = ({ onSearch, onFilter, initialSearch = '' }) => {
+  const { register, handleSubmit, watch, setValue } = useForm({
+    defaultValues: {
+      search: initialSearch
+    }
+  });
   const [showFilters, setShowFilters] = useState(false);
 
   const onSubmit = (data) => {
@@ -284,6 +186,7 @@ const SearchFilters = ({ onSearch, onFilter }) => {
   };
 
   const propertyTypes = ['All', '1BHK', '2BHK', '3BHK', '4BHK', 'Studio', 'PG'];
+  const accommodationTypes = ['All', 'male', 'female', 'unisex'];
   const statusOptions = ['All', 'available', 'rented', 'maintenance'];
 
   return (
@@ -324,7 +227,7 @@ const SearchFilters = ({ onSearch, onFilter }) => {
       {/* Filter Options */}
       {showFilters && (
         <div className="mt-6 pt-6 border-t border-[#E2E8F0]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {/* Property Type Filter */}
             <div>
               <label className="block text-sm font-medium text-[#1E293B] mb-2">Property Type</label>
@@ -336,6 +239,22 @@ const SearchFilters = ({ onSearch, onFilter }) => {
                 {propertyTypes.map(type => (
                   <option key={type} value={type === 'All' ? '' : type}>
                     {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Accommodation Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-[#1E293B] mb-2">Accommodation Type</label>
+              <select
+                {...register('accommodationType')}
+                onChange={(e) => onFilter({ accommodationType: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
+              >
+                {accommodationTypes.map(type => (
+                  <option key={type} value={type === 'All' ? '' : type}>
+                    {type === 'male' ? 'Male Only' : type === 'female' ? 'Female Only' : type === 'unisex' ? 'Unisex' : 'All'}
                   </option>
                 ))}
               </select>
@@ -364,6 +283,7 @@ const SearchFilters = ({ onSearch, onFilter }) => {
                 {...register('maxPrice')}
                 type="number"
                 placeholder="Max rent amount"
+                onChange={(e) => onFilter({ maxPrice: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#1E293B] placeholder-[#64748B] focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:outline-none transition-all duration-300"
               />
             </div>
@@ -382,53 +302,82 @@ const Listings = () => {
   const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredListings, setFilteredListings] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize with dummy data
+  // Fetch listings from API
+  const fetchListings = async (searchFilters = {}) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (searchFilters.search) params.set('search', searchFilters.search);
+      if (searchFilters.propertyType) params.set('propertyType', searchFilters.propertyType);
+      if (searchFilters.accommodationType) params.set('accommodationType', searchFilters.accommodationType);
+      if (searchFilters.status) params.set('status', searchFilters.status);
+      if (searchFilters.maxPrice) params.set('maxPrice', searchFilters.maxPrice);
+
+      console.log('🔍 Frontend search filters:', searchFilters);
+      console.log('🔍 API URL:', `${API_ENDPOINTS.LISTINGS}?${params.toString()}`);
+
+      const response = await fetch(`${API_ENDPOINTS.LISTINGS}?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setListings(data.data || []);
+        setFilteredListings(data.data || []);
+      } else {
+        throw new Error(data.message || 'Failed to fetch listings');
+      }
+    } catch (err) {
+      console.error('Error fetching listings:', err);
+      setError(err.message);
+      setListings([]);
+      setFilteredListings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initialize with URL parameters
   useEffect(() => {
-    setListings(dummyListings);
-    setFilteredListings(dummyListings);
-    setLoading(false);
+    const location = searchParams.get('location');
+    const propertyType = searchParams.get('propertyType');
+    const maxPrice = searchParams.get('maxPrice');
+
+    const initialFilters = {};
+    if (location) initialFilters.location = location;
+    if (propertyType) initialFilters.propertyType = propertyType;
+    if (maxPrice) initialFilters.maxPrice = maxPrice;
+
+    // Set initial filters
+    setFilters(initialFilters);
+
+    // Fetch listings with initial filters
+    fetchListings(initialFilters);
   }, []);
-
-  // Filter listings based on search and filters
-  useEffect(() => {
-    let filtered = [...listings];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(property =>
-        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Property type filter
-    if (filters.propertyType && filters.propertyType !== 'All') {
-      filtered = filtered.filter(property => property.propertyType === filters.propertyType);
-    }
-
-    // Status filter
-    if (filters.status && filters.status !== 'All') {
-      filtered = filtered.filter(property => property.status === filters.status);
-    }
-
-    // Price filter
-    if (filters.maxPrice) {
-      filtered = filtered.filter(property => property.rent <= parseInt(filters.maxPrice));
-    }
-
-    setFilteredListings(filtered);
-  }, [listings, searchTerm, filters]);
 
   // Handle search
   const handleSearch = (searchData) => {
     setSearchTerm(searchData.search || '');
+    // Combine search with existing filters
+    const combinedFilters = { ...filters, ...searchData };
+    fetchListings(combinedFilters);
   };
 
   // Handle filters
   const handleFilter = (filterData) => {
-    setFilters(prev => ({ ...prev, ...filterData }));
+    const newFilters = { ...filters, ...filterData };
+    setFilters(newFilters);
+    // Combine search term with filters
+    const combinedFilters = { ...newFilters, search: searchTerm };
+    fetchListings(combinedFilters);
   };
 
   return (
@@ -446,7 +395,8 @@ const Listings = () => {
         {/* Search and Filters */}
         <SearchFilters 
           onSearch={handleSearch} 
-          onFilter={handleFilter} 
+          onFilter={handleFilter}
+          initialSearch={searchTerm}
         />
 
         {/* Loading State */}
@@ -462,7 +412,7 @@ const Listings = () => {
           <div className="text-center py-12">
             <p className="text-red-500 mb-4">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => fetchListings()}
               className="px-6 py-3 bg-[#2563EB] text-white rounded-xl hover:bg-[#1E40AF] transition-colors font-medium"
             >
               Try Again
@@ -476,32 +426,32 @@ const Listings = () => {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-[#64748B]">
-                Showing {filteredListings.length} of {listings.length} properties
+                Showing {filteredListings.length} properties
               </p>
             </div>
 
-                                                   {/* Properties Grid - Responsive */}
-              {filteredListings.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 lg:gap-6">
-                 {filteredListings.map(property => (
-                   <PropertyCard 
-                     key={property._id} 
-                     property={property} 
-                   />
-                 ))}
-               </div>
-             ) : (
-              <div className="text-center py-12">
-                <Building2 className="w-16 h-16 mx-auto text-[#64748B] mb-4" />
-                <p className="text-[#64748B]">
-                  No properties found matching your criteria
-                </p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+            {/* Properties Grid - Responsive */}
+            {filteredListings.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 lg:gap-6">
+               {filteredListings.map(property => (
+                 <PropertyCard 
+                   key={property._id} 
+                   property={property} 
+                 />
+               ))}
+             </div>
+           ) : (
+            <div className="text-center py-12">
+              <Building2 className="w-16 h-16 mx-auto text-[#64748B] mb-4" />
+              <p className="text-[#64748B]">
+                No properties found matching your criteria
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </div>
+  </div>
   );
 };
 
