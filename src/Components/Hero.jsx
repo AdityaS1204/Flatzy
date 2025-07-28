@@ -2,14 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Tag, Percent } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { heroImg1,heroImg2,heroImg3 } from '../assets';
 const images = [
   heroImg2,
   heroImg1,
   heroImg3, 
 ];
-
-
 
 const heroContent = [
   {
@@ -43,6 +42,7 @@ const Hero = () => {
     propertyType: '',
     maxPrice: ''
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -55,7 +55,28 @@ const Hero = () => {
     e.preventDefault();
     console.log('Search submitted:', searchData);
     setIsSearchModalOpen(false);
+    
+    // Redirect to listings page with search parameters
+    const searchParams = new URLSearchParams();
+    if (searchData.location) searchParams.set('location', searchData.location);
+    if (searchData.propertyType) searchParams.set('propertyType', searchData.propertyType);
+    if (searchData.maxPrice) searchParams.set('maxPrice', searchData.maxPrice);
+    
+    navigate(`/listings?${searchParams.toString()}`);
+  };
 
+  const handleDesktopSearch = () => {
+    // Get values from desktop search form
+    const locationSelect = document.querySelector('select[data-search="location"]');
+    const propertyTypeSelect = document.querySelector('select[data-search="propertyType"]');
+    const maxPriceSelect = document.querySelector('select[data-search="maxPrice"]');
+    
+    const searchParams = new URLSearchParams();
+    if (locationSelect?.value) searchParams.set('location', locationSelect.value);
+    if (propertyTypeSelect?.value) searchParams.set('propertyType', propertyTypeSelect.value);
+    if (maxPriceSelect?.value) searchParams.set('maxPrice', maxPriceSelect.value);
+    
+    navigate(`/listings?${searchParams.toString()}`);
   };
 
   const handleInputChange = (field, value) => {
@@ -132,28 +153,42 @@ const Hero = () => {
         {/* Desktop Search Bar */}
         <div className="hidden bg-white rounded-full mt-6 sm:mt-8 md:mt-10 px-4 sm:px-6 py-3 sm:py-4 shadow-lg md:flex flex-col sm:flex-row items-stretch gap-3 sm:gap-4 w-full max-w-4xl mx-2 sm:mx-4">
           
-          <select className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]">
-            <option disabled selected>Choose Location</option>
-            <option>Near Ghrce</option>
-            <option>Near Ycce</option>
-            <option>Near Vasudev nagar</option>
-            <option>Near Ghrcem</option>
+          <select 
+            data-search="location"
+            className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]"
+          >
+            <option value="">Choose Location</option>
+            <option value="Near Ghrce">Near Ghrce</option>
+            <option value="Near Ycce">Near Ycce</option>
+            <option value="Near Vasudev nagar">Near Vasudev nagar</option>
+            <option value="Near Ghrcem">Near Ghrcem</option>
           </select>
-          <select className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]">
-            <option disabled selected>Property Type</option>
-            <option>Apartment</option>
-            <option>PG</option>
-            <option>Flat</option>
-            <option>single Room</option>
+          <select 
+            data-search="propertyType"
+            className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]"
+          >
+            <option value="">Property Type</option>
+            <option value="1BHK">1BHK</option>
+            <option value="2BHK">2BHK</option>
+            <option value="3BHK">3BHK</option>
+            <option value="4BHK">4BHK</option>
+            <option value="Studio">Studio</option>
+            <option value="PG">PG</option>
           </select>
-          <select className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]">
-            <option disabled selected>Max Price</option>
-            <option>₹5,000</option>
-            <option>₹8,000</option>
-            <option>₹10,000</option>
-            <option>₹20,000</option>
+          <select 
+            data-search="maxPrice"
+            className="flex-1 px-3 sm:px-4 py-2 rounded-full border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-sm sm:text-base text-[#1E293B]"
+          >
+            <option value="">Max Price</option>
+            <option value="5000">₹5,000</option>
+            <option value="8000">₹8,000</option>
+            <option value="10000">₹10,000</option>
+            <option value="20000">₹20,000</option>
           </select>
-          <button className="bg-[#2563EB] text-white px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium hover:bg-[#1E40AF] transition-colors">
+          <button 
+            onClick={handleDesktopSearch}
+            className="bg-[#2563EB] text-white px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium hover:bg-[#1E40AF] transition-colors"
+          >
             Search
           </button>
         </div>
@@ -232,10 +267,12 @@ const Hero = () => {
                     className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-[#1E293B] bg-white"
                   >
                     <option value="">Property Type</option>
-                    <option value="Apartment">Apartment</option>
+                    <option value="1BHK">1BHK</option>
+                    <option value="2BHK">2BHK</option>
+                    <option value="3BHK">3BHK</option>
+                    <option value="4BHK">4BHK</option>
+                    <option value="Studio">Studio</option>
                     <option value="PG">PG</option>
-                    <option value="Flat">Flat</option>
-                    <option value="single Room">Single Room</option>
                   </select>
                 </div>
 
@@ -247,10 +284,10 @@ const Hero = () => {
                     className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-[#1E293B] bg-white"
                   >
                     <option value="">Max Price</option>
-                    <option value="₹5,000">₹5,000</option>
-                    <option value="₹8,000">₹8,000</option>
-                    <option value="₹10,000">₹10,000</option>
-                    <option value="₹20,000">₹20,000</option>
+                    <option value="5000">₹5,000</option>
+                    <option value="8000">₹8,000</option>
+                    <option value="10000">₹10,000</option>
+                    <option value="20000">₹20,000</option>
                   </select>
                 </div>
 
